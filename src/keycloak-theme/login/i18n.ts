@@ -20,6 +20,12 @@ export const { useI18n } = createUseI18n({
         doForgotPassword: "J'ai oublié mon mot de passe",
         invalidUserMessage: "Nom d'utilisateur ou mot de passe invalide. (ce message a été écrasé dans le thème)"
         /* spell-checker: enable */
+    },
+    es: {
+        alphanumericalCharsOnly: "Solo caracteres alfanuméricos",
+        gender: "Género",
+        doForgotPassword: "Olvidé mi contraseña",
+        invalidUserMessage: "Nombre de usuario o contraseña incorrecto."
     }
 });
 

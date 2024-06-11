@@ -1,4 +1,4 @@
-import { useState, type FormEventHandler } from "react";
+import React, { useEffect, useState, type FormEventHandler } from "react";
 import { clsx } from "keycloakify/tools/clsx";
 import { useConstCallback } from "keycloakify/tools/useConstCallback";
 import type { PageProps } from "keycloakify/login/pages/PageProps";
@@ -14,21 +14,50 @@ if (my_custom_param !== null) {
 
 export default function Login(props: PageProps<Extract<KcContext, { pageId: "login.ftl" }>, I18n>) {
     const { kcContext, i18n, doUseDefaultCss, Template, classes } = props;
-
     const { getClassName } = useGetClassName({
         doUseDefaultCss,
         classes
     });
-
     const { social, realm, url, usernameHidden, login, auth, registrationDisabled } = kcContext;
-
     const { msg, msgStr } = i18n;
+    const [isLoginButtonDisabled, setIsLoginButtonDisabled] = useState(true);
+    const [passValue, setPassValue] = useState('');
+    const [usernameValue, setUsernameValue] = useState('');
+    const [usernameValid, setUsernameValid] = useState(false);
+    console.log({kcContext})
+    const validateUsername = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
+        const username = value;
+        setUsernameValue(username);
+        if(username.length < 4){
+            setUsernameValid(false);
+            setPassValue('');
+            setIsLoginButtonDisabled(true);
+            return
+        }
+        validateProps();
+        setUsernameValid(true);
+    }
+    const validatePassword = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
+        const password = value;
+        setPassValue(password);
+        if(password.length < 4){
+            setIsLoginButtonDisabled(true);
+            return
+        }
+        validateProps();
+    }
 
-    const [isLoginButtonDisabled, setIsLoginButtonDisabled] = useState(false);
+    useEffect(() => {
+        validateProps();
+    }, [usernameValue, passValue]);
+
+    const validateProps = (): void => {
+        const result = usernameValue.length > 3 && passValue.length > 4;
+        setIsLoginButtonDisabled(!result);
+    }
 
     const onSubmit = useConstCallback<FormEventHandler<HTMLFormElement>>(e => {
         e.preventDefault();
-
         setIsLoginButtonDisabled(true);
 
         const formElement = e.target as HTMLFormElement;
@@ -39,6 +68,10 @@ export default function Login(props: PageProps<Extract<KcContext, { pageId: "log
 
         formElement.submit();
     });
+
+    // const changeLabelText = (label: any) => {
+    //     return label === 'usernameOrEmail' || label === 'username' ? 'Ingresa tu RUT' : msg(label)
+    // }
 
     return (
         <Template
@@ -85,7 +118,7 @@ export default function Login(props: PageProps<Extract<KcContext, { pageId: "log
                                         return (
                                             <>
                                                 <label htmlFor={autoCompleteHelper} className={getClassName("kcLabelClass")}>
-                                                    {msg(label)}
+                                                    { msg(label)}
                                                 </label>
                                                 <input
                                                     tabIndex={1}
@@ -95,10 +128,12 @@ export default function Login(props: PageProps<Extract<KcContext, { pageId: "log
                                                     //the browser how to pre fill the form but before submit we put it back
                                                     //to username because it is what keycloak expects.
                                                     name={autoCompleteHelper}
-                                                    defaultValue={login.username ?? ""}
                                                     type="text"
                                                     autoFocus={true}
                                                     autoComplete="off"
+                                                    value={usernameValue}
+                                                    onChange={e => validateUsername(e)}
+                                                    maxLength={12}
                                                 />
                                             </>
                                         );
@@ -115,6 +150,9 @@ export default function Login(props: PageProps<Extract<KcContext, { pageId: "log
                                     name="password"
                                     type="password"
                                     autoComplete="off"
+                                    value={passValue}
+                                    onChange={e => validatePassword(e)}
+                                    disabled={!usernameValid}
                                 />
                             </div>
                             <div className={clsx(getClassName("kcFormGroupClass"), getClassName("kcFormSettingClass"))}>
@@ -188,7 +226,7 @@ export default function Login(props: PageProps<Extract<KcContext, { pageId: "log
                                 social.providers.length > 4 && getClassName("kcFormSocialAccountDoubleListClass")
                             )}
                         >
-                            {social.providers.map(p => (
+                            {social.providers.map((p)=> (
                                 <li key={p.providerId} className={getClassName("kcFormSocialAccountListLinkClass")}>
                                     <a href={p.loginUrl} id={`zocial-${p.alias}`} className={clsx("zocial", p.providerId)}>
                                         <span>{p.displayName}</span>

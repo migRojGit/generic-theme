@@ -8,16 +8,23 @@ import { type TemplateProps } from "keycloakify/login/TemplateProps";
 import { useGetClassName } from "keycloakify/login/lib/useGetClassName";
 import type { KcContext } from "./kcContext";
 import type { I18n } from "./i18n";
-import keycloakifyLogoPngUrl from "./assets/keycloakify-logo.png";
+// import keycloakifyLogoPngUrl from "./assets/keycloakify-logo.png";
+import confuturoLogoSvgUrl from "./assets/img/logo.svg";
 
 export default function Template(props: TemplateProps<KcContext, I18n>) {
+    interface IndexApp {
+        [key: string]           : string;
+        'valid-third'           : string,
+        'certificate-manager'   : string,
+        'myApp'                 : string
+    }
+
     const {
         displayInfo = false,
         displayMessage = true,
         displayRequiredFields = false,
         displayWide = false,
         showAnotherWayIfPresent = true,
-        headerNode,
         showUsernameNode = null,
         infoNode = null,
         kcContext,
@@ -26,13 +33,10 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
         classes,
         children
     } = props;
-
+   
     const { getClassName } = useGetClassName({ doUseDefaultCss, classes });
-
     const { msg, changeLocale, labelBySupportedLanguageTag, currentLanguageTag } = i18n;
-
-    const { realm, locale, auth, url, message, isAppInitiatedAction } = kcContext;
-
+    const { realm, locale, auth, url, message, isAppInitiatedAction, client } = kcContext;
     const { isReady } = usePrepareTemplate({
         "doFetchDefaultThemeResources": doUseDefaultCss,
         "styles": [
@@ -46,15 +50,23 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
         "htmlLangProperty": locale?.currentLanguageTag,
         "documentTitle": i18n.msgStr("loginTitle", kcContext.realm.displayName)
     });
+    const { clientId } = client
+    console.log(client)
+    const indexApp: IndexApp = {
+        'valid-third': 'Registro de Tercero Válido',
+        'certificate-manager': 'Administrador de certificados',
+        'myApp': 'Mi Aplicación',
+    }
 
+    const showLogin     : string = `Ingreso a ${ indexApp[clientId] }`
+    const showSubtitle  : string = `Ingresa al portal con tus credenciales`
     useEffect(() => {
-        console.log(`Value of MY_ENV_VARIABLE on the Keycloak server: "${kcContext.properties.MY_ENV_VARIABLE}"`);
     }, []);
 
     if (!isReady) {
         return null;
     }
-
+    
     return (
         <div className={getClassName("kcLoginClass")}>
             <div id="kc-header" className={getClassName("kcHeaderClass")}>
@@ -67,10 +79,13 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
                         Here we are referencing the `keycloakify-logo.png` in the `public` directory.  
                         When possible don't use this approach, instead ...
                     */}
-                    <img src={`${import.meta.env.BASE_URL}keycloakify-logo.png`} alt="Keycloakify logo" width={50} />
-                    {msg("loginTitleHtml", realm.displayNameHtml)}!!!
-                    {/* ...rely on the bundler to import your assets, it's more efficient */}
-                    <img src={keycloakifyLogoPngUrl} alt="Keycloakify logo" width={50} />
+                    <div className="col col-login mx-auto text-center con-log-a">
+                        <img
+                            src={confuturoLogoSvgUrl}
+                            className="header-brand-img logo-confuturo"
+                            alt=""
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -105,12 +120,16 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
                                         {msg("requiredFields")}
                                     </span>
                                 </div>
-                                <div className="col-md-10">
-                                    <h1 id="kc-page-title">{headerNode}</h1>
+                                <div className="col-md-10 center-head">
+                                <h1 id="kc-page-title">{showLogin}</h1>
+                                    <h3 id="kc-h3-subtitle">{showSubtitle}</h3>
                                 </div>
                             </div>
                         ) : (
-                            <h1 id="kc-page-title">{headerNode}</h1>
+                            <div className="col-md-10 center-head">
+                                <h1 id="kc-page-title">{showLogin}</h1>
+                                <h3 id="kc-h3-subtitle">{showSubtitle}</h3>
+                            </div>
                         )
                     ) : displayRequiredFields ? (
                         <div className={getClassName("kcContentWrapperClass")}>
@@ -119,7 +138,7 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
                                     <span className="required">*</span> {msg("requiredFields")}
                                 </span>
                             </div>
-                            <div className="col-md-10">
+                            <div className="col-md-12">
                                 {showUsernameNode}
                                 <div className={getClassName("kcFormGroupClass")}>
                                     <div id="kc-username">

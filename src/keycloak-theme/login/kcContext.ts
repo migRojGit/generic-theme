@@ -20,12 +20,31 @@ export const { getKcContext } = createGetKcContext<KcContextExtension>({
 			pageId: "login.ftl",
 			locale: {
 				//When we test the login page we do it in french
-				currentLanguageTag: "fr",
+				currentLanguageTag: "es",
 			},
+			// social: {
+			// 	providers: [
+			// 		{
+			// 			alias: "google",
+			// 			displayName: "google",
+			// 			providerId: "google"
+			// 		},
+			// 		{
+			// 			alias: "github",
+			// 			displayName: "github",
+			// 			providerId: "github"
+			// 		},
+			// 		{
+			// 			alias: "facebook",
+			// 			displayName: "facebook",
+			// 			providerId: "facebook"
+			// 		},
+			// 	]
+			// }
 			//Uncomment the following line for hiding the Alert message
 			//"message": undefined
 			//Uncomment the following line for showing an Error message
-			//message: { type: "error", summary: "This is an error" }
+			// message: { type: "error", summary: "This is an error" }
 		},
 		{
 			pageId: "my-extra-page-2.ftl",
@@ -35,7 +54,7 @@ export const { getKcContext } = createGetKcContext<KcContextExtension>({
 			//NOTE: You will either use register.ftl (legacy) or register-user-profile.ftl, not both
 			pageId: "register-user-profile.ftl",
 			locale: {
-				currentLanguageTag: "fr"
+				currentLanguageTag: "es"
 			},
 			profile: {
 				attributes: [
@@ -97,7 +116,7 @@ export const { getKcContext } = createGetKcContext<KcContextExtension>({
 
 export const { kcContext } = getKcContext({
 	// Uncomment to test the login page for development.
-	//mockPageId: "login.ftl",
+	mockPageId: "login.ftl",
 });
 
 
